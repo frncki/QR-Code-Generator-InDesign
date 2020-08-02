@@ -1,1 +1,1 @@
-QR-Code-Generator-InDesign
+# QR Code Generator script for InDesign
