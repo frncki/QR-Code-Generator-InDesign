@@ -2,6 +2,7 @@
 var myDocument = app.documents.item(0)
 var firstPage = myDocument.pages.item(0)
 var pageWidth = myDocument.documentPreferences.pageWidth
+var pageHeight = myDocument.documentPreferences.pageHeight
 
 var rectangles = firstPage.rectangles
 var textFrames = firstPage.textFrames
@@ -12,7 +13,7 @@ var startY = firstPage.marginPreferences.top
 
 //product info
 var urlBase = "http://centrum-testow.pl/?id=" // link
-var productsAmount = 20 // WARNING!
+var productsAmount = 21 // WARNING!
 
 //logo paths
 var oleOleLogoPath = 'C:/Users/Solidny Franciszek/Documents/QR-Code-Generator/QR-Code-Generator-InDesign/oleoleLogo_original.PNG'
@@ -29,11 +30,18 @@ var xOffset = 2
 var yOffset = 6
 
 var shiftX = qrSize + xOffset
+var shiftY = qrSize + labelSize + yOffset
 
 var row = 0
+var col = 0
 var rowHeight = labelSize + qrSize
+var rowWidth = qrSize
 var qrsCurrentRowWidth = 0;
+var qrsCurrentRowHeight = 0;
 var usableWidth = pageWidth - startX - startX
+var usableHeight = pageHeight - startY - startY
+
+var qrsMaxWidth = 0
 
 //starting positions
 var pos = {
@@ -83,34 +91,39 @@ function makeUrl(id) {
 
 function calculateBounds(startPos, lastBound) {
 
-    if (qrsMaxWidth >= usableWidth) {
-        qrsCurrentRowWidth = 0
+    if (qrsMaxHeight >= usableHeight) {
+        qrsCurrentRowHeight = 0
         lastBound = [
-            startPos.y1 + (rowHeight + yOffset) * row,
-            startPos.x1 - shiftX,
-            startPos.y2 + (rowHeight + yOffset) * row,
-            startPos.x2 - shiftX,
+            startPos.y1 - shiftY,
+            startPos.x1 + (rowWidth + xOffset) * col,
+            startPos.y2 - shiftY,
+            startPos.x2 + (rowWidth + xOffset) * col,
         ]
     }
 
     return [
-        lastBound[0],
-        lastBound[1] + shiftX,
-        lastBound[2],
-        lastBound[3] + shiftX,
+        lastBound[0] + shiftY,
+        lastBound[1],
+        lastBound[2] + shiftY,
+        lastBound[3],
     ]
 
 }
 
-function calculateRow() {
-    if (qrsMaxWidth >= usableWidth) {
-        row++;
+function calculateCol() {
+    if (qrsMaxHeight >= usableHeight) {
+        col++;
     }
 }
 
 function updateQRsWidth() {
     qrsCurrentRowWidth += shiftX
     qrsMaxWidth = qrsCurrentRowWidth + shiftX
+}
+
+function updateQRsHeight() {
+    qrsCurrentRowHeight += shiftY
+    qrsMaxHeight = qrsCurrentRowHeight + shiftY
 }
 
 
@@ -139,39 +152,32 @@ function generateLogo(logo, frameSettings) {
     logoFrame.strokeWeight = "0"
 }
 
-function distributeStickers() {
-    var logo = oleOleLogoPath
-    var id
-    for (var i = 1; i <= productsAmount; i++) {
-        id = i + "A"
-        
+function distributeStickers(option, logoPath) {
+    var id = i + option 
+
+    updateQRsHeight()
+
+    calculateCol()
+
+    generateLabel(id, frameSettings.label)
+    generateQR(id, frameSettings.qr)
+    generateLogo(logoPath, frameSettings.logo)
+
+    frameSettings.label.geometricBounds = calculateBounds(pos.label, frameSettings.label.geometricBounds)
+    frameSettings.qr.geometricBounds = calculateBounds(pos.qr, frameSettings.qr.geometricBounds)
+    frameSettings.logo.geometricBounds = calculateBounds(pos.logo, frameSettings.logo.geometricBounds)
+
+    if (qrsMaxHeight >= usableHeight) {
         updateQRsWidth()
-
-        calculateRow()
-
-        generateLabel(id, frameSettings.label)
-        generateQR(id, frameSettings.qr)
-        generateLogo(logo, frameSettings.logo)
-
-        frameSettings.label.geometricBounds = calculateBounds(pos.label, frameSettings.label.geometricBounds)
-        frameSettings.qr.geometricBounds = calculateBounds(pos.qr, frameSettings.qr.geometricBounds)
-        frameSettings.logo.geometricBounds = calculateBounds(pos.logo, frameSettings.logo.geometricBounds)
-
-        logo = ctLogoPath
-        id = i + "B"
-        
-        updateQRsWidth()
-
-        calculateRow()
-
-        generateLabel(id, frameSettings.label)
-        generateQR(id, frameSettings.qr)
-        generateLogo(logo, frameSettings.logo)
-
-        frameSettings.label.geometricBounds = calculateBounds(pos.label, frameSettings.label.geometricBounds)
-        frameSettings.qr.geometricBounds = calculateBounds(pos.qr, frameSettings.qr.geometricBounds)
-        frameSettings.logo.geometricBounds = calculateBounds(pos.logo, frameSettings.logo.geometricBounds)
+        if (qrsMaxWidth >= usableWidth) {
+            qrsCurrentRowWidth = 0
+            // nowa strona
+            alert("nowa strona :))")
+        }
     }
 }
 
-distributeStickers()
+for (var i = 1; i <= productsAmount; i++) {
+    distributeStickers("A", oleOleLogoPath)
+    distributeStickers("B", ctLogoPath)
+}
