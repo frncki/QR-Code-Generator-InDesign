@@ -11,12 +11,12 @@ var startX = firstPage.marginPreferences.right
 var startY = firstPage.marginPreferences.top
 
 //product info
-var urlBase = "" // link
-var productsAmount = 799 // WARNING!
+var urlBase = "http://centrum-testow.pl/?id=" // link
+var productsAmount = 20 // WARNING!
 
 //logo paths
-var oleOleLogoPath = ''
-var ctLogoPath = ''
+var oleOleLogoPath = 'C:/Users/Solidny Franciszek/Documents/QR-Code-Generator/QR-Code-Generator-InDesign/oleoleLogo_original.PNG'
+var ctLogoPath = 'C:/Users/Solidny Franciszek/Documents/QR-Code-Generator/QR-Code-Generator-InDesign/CentrumTestowLogo.png'
 
 //settings // this needs refactor
 var qrSize = 25 
@@ -139,11 +139,26 @@ function generateLogo(logo, frameSettings) {
     logoFrame.strokeWeight = "0"
 }
 
-function distributeStickers(option, logoPath) {
-    var logo = logoPath
+function distributeStickers() {
+    var logo = oleOleLogoPath
     var id
     for (var i = 1; i <= productsAmount; i++) {
-        id = i + option
+        id = i + "A"
+        
+        updateQRsWidth()
+
+        calculateRow()
+
+        generateLabel(id, frameSettings.label)
+        generateQR(id, frameSettings.qr)
+        generateLogo(logo, frameSettings.logo)
+
+        frameSettings.label.geometricBounds = calculateBounds(pos.label, frameSettings.label.geometricBounds)
+        frameSettings.qr.geometricBounds = calculateBounds(pos.qr, frameSettings.qr.geometricBounds)
+        frameSettings.logo.geometricBounds = calculateBounds(pos.logo, frameSettings.logo.geometricBounds)
+
+        logo = ctLogoPath
+        id = i + "B"
         
         updateQRsWidth()
 
@@ -159,5 +174,4 @@ function distributeStickers(option, logoPath) {
     }
 }
 
-distributeStickers("A", oleOleLogoPath)
-distributeStickers("B", ctLogoPath)
+distributeStickers()
