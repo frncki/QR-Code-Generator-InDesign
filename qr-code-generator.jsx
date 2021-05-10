@@ -1,19 +1,21 @@
 //document variables
+var pageNumber = 0
 var myDocument = app.documents.item(0)
-var firstPage = myDocument.pages.item(0)
+var firstPage = myDocument.pages.item(pageNumber)
 var pageWidth = myDocument.documentPreferences.pageWidth
 var pageHeight = myDocument.documentPreferences.pageHeight
 
-var rectangles = firstPage.rectangles
-var textFrames = firstPage.textFrames
+var currentPage = firstPage
+var rectangles = currentPage.rectangles
+var textFrames = currentPage.textFrames
 
 //margins
-var startX = firstPage.marginPreferences.right
-var startY = firstPage.marginPreferences.top
+var startX = currentPage.marginPreferences.right
+var startY = currentPage.marginPreferences.top
 
 //product info
 var urlBase = "http://centrum-testow.pl/?id=" // link
-var productsAmount = 21 // WARNING!
+var productsAmount = 99 // WARNING!
 
 //logo paths
 var oleOleLogoPath = 'C:/Users/Solidny Franciszek/Documents/QR-Code-Generator/QR-Code-Generator-InDesign/oleoleLogo_original.PNG'
@@ -152,7 +154,7 @@ function generateLogo(logo, frameSettings) {
     logoFrame.strokeWeight = "0"
 }
 
-function distributeStickers(option, logoPath) {
+function distributeStickers(option, logoPath, index) {
     var id = i + option 
 
     updateQRsHeight()
@@ -173,6 +175,14 @@ function distributeStickers(option, logoPath) {
             qrsCurrentRowWidth = 0
             // nowa strona
             alert("nowa strona :))")
+            pageNumber++
+            var myDocument = app.activeDocument.pages.add()
+            currentPage = app.activeDocument.pages.item(pageNumber)
+            rectangles = currentPage.rectangles
+            textFrames = currentPage.textFrames
+            frameSettings.label.geometricBounds = [pos.label.y1, pos.label.x1, pos.label.y2, pos.label.x2]
+            frameSettings.qr.geometricBounds = [pos.qr.y1, pos.qr.x1, pos.qr.y2, pos.qr.x2]
+            frameSettings.logo.geometricBounds = [pos.logo.y1, pos.logo.x1, pos.logo.y2, pos.logo.x2]
         }
     }
 }
