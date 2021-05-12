@@ -1,7 +1,6 @@
 //document variables
-var pageNumber = 0
-var myDocument = app.documents.item(0)
-var firstPage = myDocument.pages.item(pageNumber)
+var myDocument = app.activeDocument
+var firstPage = myDocument.pages[0]
 var pageWidth = myDocument.documentPreferences.pageWidth
 var pageHeight = myDocument.documentPreferences.pageHeight
 
@@ -34,7 +33,6 @@ var yOffset = 6
 var shiftX = qrSize + xOffset
 var shiftY = qrSize + labelSize + yOffset
 
-var row = 0
 var col = 0
 var rowHeight = labelSize + qrSize
 var rowWidth = qrSize
@@ -46,7 +44,7 @@ var usableHeight = pageHeight - startY - startY
 var qrsMaxWidth = 0
 
 //starting positions
-var pos = {
+var constPos = {
     label: {
         y1: startY,
         x1: startX,
@@ -68,6 +66,8 @@ var pos = {
         x2: startX + qrSize,
     },
 }
+
+var pos = constPos
 
 //frames settings
 var frameSettings = {
@@ -154,10 +154,8 @@ function generateLogo(logo, frameSettings) {
     logoFrame.strokeWeight = "0"
 }
 
-function distributeStickers(option, logoPath, index) {
+function distributeStickers(option, logoPath) {
     var id = i + option 
-
-    updateQRsHeight()
 
     calculateCol()
 
@@ -168,26 +166,28 @@ function distributeStickers(option, logoPath, index) {
     frameSettings.label.geometricBounds = calculateBounds(pos.label, frameSettings.label.geometricBounds)
     frameSettings.qr.geometricBounds = calculateBounds(pos.qr, frameSettings.qr.geometricBounds)
     frameSettings.logo.geometricBounds = calculateBounds(pos.logo, frameSettings.logo.geometricBounds)
-
-    if (qrsMaxHeight >= usableHeight) {
-        updateQRsWidth()
-        if (qrsMaxWidth >= usableWidth) {
-            qrsCurrentRowWidth = 0
-            // nowa strona
-            alert("nowa strona :))")
-            pageNumber++
-            var myDocument = app.activeDocument.pages.add()
-            currentPage = app.activeDocument.pages.item(pageNumber)
-            rectangles = currentPage.rectangles
-            textFrames = currentPage.textFrames
-            frameSettings.label.geometricBounds = [pos.label.y1, pos.label.x1, pos.label.y2, pos.label.x2]
-            frameSettings.qr.geometricBounds = [pos.qr.y1, pos.qr.x1, pos.qr.y2, pos.qr.x2]
-            frameSettings.logo.geometricBounds = [pos.logo.y1, pos.logo.x1, pos.logo.y2, pos.logo.x2]
-        }
-    }
 }
 
 for (var i = 1; i <= productsAmount; i++) {
+    updateQRsHeight()
     distributeStickers("A", oleOleLogoPath)
+    updateQRsHeight()
     distributeStickers("B", ctLogoPath)
+    if (qrsMaxHeight >= usableHeight) {
+        updateQRsWidth()
+        qrsCurrentRowHeight = 0
+        if (qrsMaxWidth >= usableWidth) {
+            qrsCurrentRowWidth = 0
+            col = 0
+            //currentPage = app.activeDocument.pages[]
+            //app.activeDocument.layoutWindows[0].activePage = currentPage
+
+            rectangles = app.activeDocument.pages[Math.floor(i/20)].rectangles
+            textFrames = app.activeDocument.pages[Math.floor(i/20)].textFrames
+            
+            frameSettings.label.geometricBounds = [constPos.label.y1, constPos.label.x1, constPos.label.y2, constPos.label.x2]
+            frameSettings.qr.geometricBounds = [constPos.qr.y1, constPos.qr.x1, constPos.qr.y2, constPos.qr.x2]
+            frameSettings.logo.geometricBounds = [constPos.logo.y1, constPos.logo.x1, constPos.logo.y2, constPos.logo.x2]
+        }
+    }
 }
