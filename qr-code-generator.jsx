@@ -13,12 +13,11 @@ var startX = currentPage.marginPreferences.right
 var startY = currentPage.marginPreferences.top
 
 //product info
-var urlBase = "http://centrum-testow.pl/?id=" // link
-var productsAmount = 99 // WARNING!
+var urlBase = "" // link
 
 //logo paths
-var oleOleLogoPath = 'C:/Users/Solidny Franciszek/Documents/QR-Code-Generator/QR-Code-Generator-InDesign/oleoleLogo_original.PNG'
-var ctLogoPath = 'C:/Users/Solidny Franciszek/Documents/QR-Code-Generator/QR-Code-Generator-InDesign/CentrumTestowLogo.png'
+var oleOleLogoPath = ''
+var ctLogoPath = ''
 
 //settings // this needs refactor
 var qrSize = 25 
@@ -168,7 +167,9 @@ function distributeStickers(option, logoPath) {
     frameSettings.logo.geometricBounds = calculateBounds(pos.logo, frameSettings.logo.geometricBounds)
 }
 
+var productsAmount = 10 // last number of qr code carefull with that! :)
 for (var i = 1; i <= productsAmount; i++) {
+
     updateQRsHeight()
     distributeStickers("A", oleOleLogoPath)
     updateQRsHeight()
@@ -179,11 +180,10 @@ for (var i = 1; i <= productsAmount; i++) {
         if (qrsMaxWidth >= usableWidth) {
             qrsCurrentRowWidth = 0
             col = 0
-            //currentPage = app.activeDocument.pages[]
-            //app.activeDocument.layoutWindows[0].activePage = currentPage
+            currentPage = app.activeDocument.pages[currentPage.documentOffset+1]
 
-            rectangles = app.activeDocument.pages[Math.floor(i/20)].rectangles
-            textFrames = app.activeDocument.pages[Math.floor(i/20)].textFrames
+            rectangles = currentPage.rectangles
+            textFrames = currentPage.textFrames
             
             frameSettings.label.geometricBounds = [constPos.label.y1, constPos.label.x1, constPos.label.y2, constPos.label.x2]
             frameSettings.qr.geometricBounds = [constPos.qr.y1, constPos.qr.x1, constPos.qr.y2, constPos.qr.x2]
